@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom Font Styling */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+  }
+
+  body {
+    @apply font-body;
+  }
+
+  button,
+  .accent-text {
+    @apply font-accent;
+  }
+}
+
 .btn-active {
   @apply bg-red-500 hover:bg-red-700;
 }

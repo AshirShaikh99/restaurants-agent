@@ -5,8 +5,11 @@ import React, { useEffect } from "react";
 import { RestaurantsComponent } from "./restaurants";
 import { MenuComponent } from "./menu";
 import { Reservation } from "./reservation";
+import { useDisplay } from "@/context/DisplayContext";
 
 function Display() {
+  const { setDisplayStatus } = useDisplay();
+
   const [restaurantList, setRestaurantList] = React.useState<
     typeof restaurants
   >([]);
@@ -20,6 +23,15 @@ function Display() {
   >(null);
 
   const [reservationDetails, setReservationDetails] = React.useState<{}>({});
+
+  // Update the display context whenever status changes
+  useEffect(() => {
+    if (restaurantList.length === 0 && !selectedRestaurant) {
+      setDisplayStatus("empty");
+    } else {
+      setDisplayStatus(status);
+    }
+  }, [status, restaurantList, selectedRestaurant, setDisplayStatus]);
 
   useEffect(() => {
     const onMessageUpdate = (message: Message) => {
@@ -90,6 +102,7 @@ function Display() {
       setRestaurantList([]);
       setSelectedRestaurant(null);
       setReservationDetails({});
+      setDisplayStatus("empty");
     };
 
     vapi.on("message", onMessageUpdate);

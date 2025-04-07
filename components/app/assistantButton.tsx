@@ -72,7 +72,7 @@ const AssistantButton = ({
       <Button
         className={`relative rounded-full w-16 h-16 ${colors.bg} ${
           colors.hover
-        } ${colors.text} shadow-lg ${
+        } ${colors.text} shadow-xl ${colors.shadow} ${
           isHovered ? `ring-4 ${colors.ring}` : ""
         } transition-all duration-300 transform ${
           isHovered ? "scale-110" : "scale-100"

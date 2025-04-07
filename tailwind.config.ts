@@ -9,6 +9,17 @@ const config: Config = {
   darkMode: "class",
   theme: {
     extend: {
+      fontFamily: {
+        heading: ["var(--font-heading)", "sans-serif"],
+        body: ["var(--font-body)", "sans-serif"],
+        accent: ["var(--font-accent)", "sans-serif"],
+        sans: [
+          "var(--font-body)",
+          "var(--font-fallback)",
+          "system-ui",
+          "sans-serif",
+        ],
+      },
       colors: {
         dark: {
           100: "#d5d5d5",
