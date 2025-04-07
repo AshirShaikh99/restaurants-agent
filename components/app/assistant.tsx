@@ -31,8 +31,10 @@ function Assistant() {
         </div>
       </div>
       {!hasContent && (
-        <div className="text-center text-sm text-gray-500 dark:text-gray-400 animate-fade-in mb-6">
-          <p>Click the button and speak to interact with the assistant</p>
+        <div className="text-center animate-fade-in mb-6">
+          <p className="font-accent text-primary-600 dark:text-primary-400 font-medium">
+            Call Paula to find your perfect meal
+          </p>
         </div>
       )}
       <div
