@@ -1,67 +1,95 @@
-import { shows } from "@/data/shows";
+import { restaurants } from "@/data/fast-food-restaurants";
 import { Message, MessageTypeEnum } from "@/lib/types/conversation.type";
 import { vapi } from "@/lib/vapi.sdk";
 import React, { useEffect } from "react";
-import { ShowsComponent } from "./shows";
-import { Ticket } from "./ticket";
+import { RestaurantsComponent } from "./restaurants";
+import { MenuComponent } from "./menu";
+import { Reservation } from "./reservation";
 
 function Display() {
-  const [showList, setShowList] = React.useState<Array<(typeof shows)[number]>>(
-    []
-  );
+  const [restaurantList, setRestaurantList] = React.useState<
+    typeof restaurants
+  >([]);
 
-  const [status, setStatus] = React.useState<"show" | "confirm" | "ticket">(
-    "show"
-  );
+  const [status, setStatus] = React.useState<
+    "restaurants" | "menu" | "menu-selection" | "confirmation" | "confirmed"
+  >("restaurants");
 
-  const [selectedShow, setSelectedShow] = React.useState<
-    (typeof shows)[number] | null
+  const [selectedRestaurant, setSelectedRestaurant] = React.useState<
+    (typeof restaurants)[number] | null
   >(null);
 
-  const [confirmDetails, setConfirmDetails] = React.useState<{}>();
+  const [reservationDetails, setReservationDetails] = React.useState<{}>({});
 
   useEffect(() => {
     const onMessageUpdate = (message: Message) => {
       if (
         message.type === MessageTypeEnum.FUNCTION_CALL &&
-        message.functionCall.name === "suggestShows"
+        message.functionCall.name === "suggestRestaurants"
       ) {
-        setStatus("show");
+        setStatus("restaurants");
         vapi.send({
           type: MessageTypeEnum.ADD_MESSAGE,
           message: {
             role: "system",
-            content: `Here is the list of suggested shows: ${JSON.stringify(
-              shows.map((show) => show.title)
+            content: `Here is the list of suggested restaurants: ${JSON.stringify(
+              restaurants.map((restaurant) => restaurant.name)
             )}`,
           },
         });
-        setShowList(shows);
+        setRestaurantList(restaurants);
       } else if (
         message.type === MessageTypeEnum.FUNCTION_CALL &&
-        (message.functionCall.name === "confirmDetails" ||
-          message.functionCall.name === "bookTickets")
+        message.functionCall.name === "viewMenu"
       ) {
         const params = message.functionCall.parameters;
+        console.log("viewMenu parameters", params);
 
-        setConfirmDetails(params);
-        console.log("parameters", params);
-
-        const result = shows.find(
-          (show) => show.title.toLowerCase() == params.show.toLowerCase()
+        const result = restaurants.find(
+          (restaurant) =>
+            restaurant.name.toLowerCase() ===
+            params.restaurantName.toLowerCase()
         );
-        setSelectedShow(result ?? shows[0]);
+        setSelectedRestaurant(result ?? restaurants[0]);
+        setStatus("menu");
+      } else if (
+        message.type === MessageTypeEnum.FUNCTION_CALL &&
+        message.functionCall.name === "selectMenuItems"
+      ) {
+        const params = message.functionCall.parameters;
+        console.log("selectMenuItems parameters", params);
 
-        setStatus(
-          message.functionCall.name === "confirmDetails" ? "confirm" : "ticket"
+        const result = restaurants.find(
+          (restaurant) =>
+            restaurant.name.toLowerCase() ===
+            params.restaurantName.toLowerCase()
         );
+        setSelectedRestaurant(result ?? restaurants[0]);
+        setReservationDetails(params);
+        setStatus("menu-selection");
+      } else if (
+        message.type === MessageTypeEnum.FUNCTION_CALL &&
+        message.functionCall.name === "makeReservation"
+      ) {
+        const params = message.functionCall.parameters;
+        console.log("makeReservation parameters", params);
+
+        const result = restaurants.find(
+          (restaurant) =>
+            restaurant.name.toLowerCase() ===
+            params.restaurantName.toLowerCase()
+        );
+        setSelectedRestaurant(result ?? restaurants[0]);
+        setReservationDetails(params);
+        setStatus("confirmation");
       }
     };
 
     const reset = () => {
-      setStatus("show");
-      setShowList([]);
-      setSelectedShow(null);
+      setStatus("restaurants");
+      setRestaurantList([]);
+      setSelectedRestaurant(null);
+      setReservationDetails({});
     };
 
     vapi.on("message", onMessageUpdate);
@@ -74,14 +102,20 @@ function Display() {
 
   return (
     <>
-      {showList.length > 0 && status == "show" ? (
-        <ShowsComponent showList={showList} />
+      {restaurantList.length > 0 && status === "restaurants" ? (
+        <RestaurantsComponent restaurantList={restaurantList} />
       ) : null}
-      {status !== "show" ? (
-        <Ticket
+      {status === "menu" && selectedRestaurant ? (
+        <MenuComponent restaurant={selectedRestaurant} />
+      ) : null}
+      {(status === "menu-selection" ||
+        status === "confirmation" ||
+        status === "confirmed") &&
+      selectedRestaurant ? (
+        <Reservation
           type={status}
-          show={selectedShow ?? shows[0]}
-          params={confirmDetails}
+          restaurant={selectedRestaurant}
+          params={reservationDetails}
         />
       ) : null}
     </>

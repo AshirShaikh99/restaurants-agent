@@ -13,12 +13,39 @@ export default async function handler(
       console.log("payload message", message);
 
       if (type === "function-call") {
-        if (functionCall?.name === "suggestShows") {
+        if (functionCall?.name === "suggestRestaurants") {
           const parameters = functionCall?.parameters;
 
           return res.status(201).json({
             result:
-              "You can see the upcoming shows on the screen. Select which ones you want to choose.",
+              "You can see the suggested restaurants on the screen. Which one would you like to explore?",
+          });
+        }
+
+        if (functionCall?.name === "viewMenu") {
+          const parameters = functionCall?.parameters;
+
+          return res.status(201).json({
+            result:
+              "Here's the menu for the restaurant. Let me know which items you'd like to order.",
+          });
+        }
+
+        if (functionCall?.name === "selectMenuItems") {
+          const parameters = functionCall?.parameters;
+
+          return res.status(201).json({
+            result:
+              "I've added those items to your order. Would you like to make a reservation now?",
+          });
+        }
+
+        if (functionCall?.name === "makeReservation") {
+          const parameters = functionCall?.parameters;
+
+          return res.status(201).json({
+            result:
+              "Here are your reservation details. Please confirm if everything looks correct.",
           });
         }
 
